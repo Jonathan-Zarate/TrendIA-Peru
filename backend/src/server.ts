@@ -1,0 +1,9 @@
+import { serve } from '@hono/node-server'
+import { app } from './app.js'
+
+const port = Number(process.env.PORT ?? 3000)
+
+serve({ fetch: app.fetch, port }, ({ port: activePort }) => {
+  console.log(`TrendIA API disponible en http://localhost:${activePort}`)
+})
+
