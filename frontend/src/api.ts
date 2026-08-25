@@ -1,4 +1,4 @@
-import type { Session, SessionUser, TrendDetail, TrendPage } from './types'
+import type { Session, SessionUser, TrendCategory, TrendDetail, TrendPage, TrendSummary } from './types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? ''
 
@@ -39,6 +39,47 @@ export function listManagedTrends(accessToken: string, filters: ManagedTrendFilt
   })
 }
 
+export async function listCategories(signal?: AbortSignal): Promise<TrendCategory[]> {
+  const response = await request<{ data: TrendCategory[] }>('/api/trends/categories', signal)
+  return response.data
+}
+
+export interface DraftInput {
+  categoryId: string
+  title: string
+  summary: string
+  originCountry: string
+  originRegion?: string
+  observationStartedAt?: string
+  observationEndedAt?: string
+}
+
+export function createTrend(accessToken: string, input: DraftInput): Promise<TrendSummary> {
+  return authorizedPost('/api/trends', accessToken, input)
+}
+
+export interface SourceInput {
+  type: string
+  title: string
+  url: string
+  publisher?: string
+  publishedAt?: string
+  consultedAt: string
+  evidenceNote: string
+}
+
+export function addTrendSource(accessToken: string, trendId: string, input: SourceInput) {
+  return authorizedPost(`/api/trends/${trendId}/sources`, accessToken, input)
+}
+
+export function submitTrendForReview(accessToken: string, trendId: string) {
+  return authorizedPost<{ status: string }>(`/api/trends/${trendId}/submit-review`, accessToken)
+}
+
+export function publishTrend(accessToken: string, trendId: string) {
+  return authorizedPost<{ status: string }>(`/api/trends/${trendId}/publish`, accessToken)
+}
+
 export function login(email: string, password: string): Promise<Session> {
   return request<Session>('/api/auth/login', undefined, {
     method: 'POST',
@@ -65,4 +106,12 @@ async function request<T>(path: string, signal?: AbortSignal, options: RequestIn
     throw new Error(payload?.error?.message ?? 'No pudimos consultar las tendencias.')
   }
   return response.json() as Promise<T>
+}
+
+function authorizedPost<T = unknown>(path: string, accessToken: string, body?: object): Promise<T> {
+  return request<T>(path, undefined, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, ...(body ? { 'Content-Type': 'application/json' } : {}) },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  })
 }

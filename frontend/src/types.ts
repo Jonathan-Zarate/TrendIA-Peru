@@ -39,6 +39,13 @@ export interface TrendPage {
   meta: { page: number, limit: number, total: number, totalPages: number }
 }
 
+export interface TrendCategory {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+}
+
 export type UserRole = 'ADMIN' | 'ANALYST' | 'ENTREPRENEUR'
 
 export interface SessionUser {
