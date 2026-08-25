@@ -10,7 +10,7 @@ export interface CreateUserInput {
 export interface UserRepository {
   findByEmail(email: string): Promise<AuthUser | null>
   findById(id: string): Promise<AuthUser | null>
-  create(input: CreateUserInput): Promise<AuthUser>
+  create(input: CreateUserInput): Promise<AuthUser | null>
   recordFailedLogin(id: string, maximumAttempts: number, occurredAt: Date): Promise<void>
   resetFailedLogins(id: string): Promise<void>
 }

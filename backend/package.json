@@ -12,6 +12,7 @@
     "start": "node dist/server.js"
   },
   "dependencies": {
+    "@trendia/database": "workspace:*",
     "@hono/node-server": "2.1.1",
     "hono": "4.13.4",
     "zod": "4.4.3"
@@ -22,4 +23,3 @@
     "vitest": "4.1.11"
   }
 }
-

@@ -1,5 +1,4 @@
 import { handle } from 'hono/vercel'
-import { app } from '../src/app.js'
+import { createProductionApp } from '../src/bootstrap.js'
 
-export default handle(app)
-
+export default handle(createProductionApp())

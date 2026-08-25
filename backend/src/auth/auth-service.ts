@@ -54,6 +54,14 @@ export class AuthService {
       role: 'ENTREPRENEUR',
     })
 
+    if (!user) {
+      throw new AuthError(
+        'EMAIL_ALREADY_REGISTERED',
+        'El correo ya está registrado.',
+        409,
+      )
+    }
+
     return this.createResult(user)
   }
 
