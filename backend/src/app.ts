@@ -1,9 +1,11 @@
 import { Hono } from 'hono'
 import { requestId } from 'hono/request-id'
 import { authErrorResponse, createAuthRouter, type AuthModule, type AuthVariables } from './auth/http.js'
+import { createTrendRouter, trendErrorResponse, type TrendModule } from './trends/http.js'
 
 interface AppDependencies {
   auth?: AuthModule
+  trends?: TrendModule
 }
 
 export function createApp(dependencies: AppDependencies = {}) {
@@ -21,13 +23,19 @@ export function createApp(dependencies: AppDependencies = {}) {
     application.route('/api/auth', createAuthRouter(dependencies.auth))
   }
 
-  application.onError((error, context) => authErrorResponse(error, context) ?? context.json({
+  if (dependencies.auth && dependencies.trends) {
+    application.route('/api/trends', createTrendRouter(dependencies.trends, dependencies.auth))
+  }
+
+  application.onError((error, context) => authErrorResponse(error, context)
+    ?? trendErrorResponse(error, context)
+    ?? context.json({
     error: {
       code: 'INTERNAL_ERROR',
       message: 'Ocurrió un error inesperado.',
       requestId: context.get('requestId'),
     },
-  }, 500))
+    }, 500))
 
   application.notFound((context) => context.json({
     error: {
