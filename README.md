@@ -11,9 +11,11 @@ Actualmente están operativos sobre PostgreSQL/Neon:
 - Registro, login y consulta de sesión con JWT.
 - RBAC para `ADMIN`, `ANALYST` y `ENTREPRENEUR`.
 - Catálogo público paginado con búsqueda y filtros.
+- Interfaz responsive con detalle y fuentes trazables.
 - Vista interna de tendencias por estado.
-- Creación de borradores y registro de fuentes por analistas.
+- Creación de borradores, registro de fuentes y evaluación explicable por analistas.
 - Transición controlada de borrador a revisión y publicación exclusiva por administración.
+- Índice calculado en backend y reconciliado por PostgreSQL con pesos versionados.
 - Restricciones de integridad y smoke tests reales contra Neon.
 
 ## Flujo principal
@@ -45,3 +47,4 @@ La aplicación Android, el scraping de redes sociales, las alertas automáticas 
 - `docs/proceso/001-inicio-del-proyecto.md`: primera evidencia del proceso.
 - `docs/seguridad-y-permisos.md`: matriz RBAC y reglas de autenticación.
 - `docs/proceso/008-catalogo-y-flujo-editorial.md`: evidencia del catálogo en Neon.
+- `docs/proceso/009-web-editorial-e-indice.md`: decisiones y evidencia de la web y el índice.
