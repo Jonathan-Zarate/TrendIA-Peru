@@ -8,6 +8,7 @@
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint src api",
     "seed:demo": "tsx scripts/seed-demo-users.ts",
+    "seed:catalog": "tsx scripts/seed-demo-catalog.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "start": "node dist/server.js"
