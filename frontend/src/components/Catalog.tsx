@@ -49,7 +49,7 @@ export function Catalog({ onOpen }: CatalogProps) {
       <section className="catalog" aria-labelledby="catalog-title">
         <div className="section-heading">
           <div><p className="eyebrow">Explorar</p><h2 id="catalog-title">Tendencias publicadas</h2></div>
-          {result && <p className="result-count">{result.meta.total} oportunidades encontradas</p>}
+          {result && <p className="result-count">{result.meta.total} {result.meta.total === 1 ? 'oportunidad encontrada' : 'oportunidades encontradas'}</p>}
         </div>
         <div className="filters">
           <label className="search-field"><span className="sr-only">Buscar tendencias</span><span aria-hidden="true">⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nombre o problema..." /></label>
