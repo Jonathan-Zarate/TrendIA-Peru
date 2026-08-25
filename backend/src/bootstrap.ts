@@ -20,7 +20,13 @@ export function createProductionApp(environment: NodeJS.ProcessEnv = process.env
   return createApp({
     auth: { service, tokens },
     trends: { service: new TrendService(trends) },
+    allowedOrigins: parseAllowedOrigins(environment.APP_ORIGIN),
   })
+}
+
+function parseAllowedOrigins(value: string | undefined): string[] {
+  const configured = value?.split(',').map((origin) => origin.trim()).filter(Boolean) ?? []
+  return [...new Set(['http://localhost:5173', ...configured])]
 }
 
 function requireEnvironmentVariable(environment: NodeJS.ProcessEnv, name: string): string {

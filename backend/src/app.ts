@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { requestId } from 'hono/request-id'
 import { authErrorResponse, createAuthRouter, type AuthModule, type AuthVariables } from './auth/http.js'
 import { createTrendRouter, trendErrorResponse, type TrendModule } from './trends/http.js'
@@ -6,12 +7,20 @@ import { createTrendRouter, trendErrorResponse, type TrendModule } from './trend
 interface AppDependencies {
   auth?: AuthModule
   trends?: TrendModule
+  allowedOrigins?: string[]
 }
 
 export function createApp(dependencies: AppDependencies = {}) {
   const application = new Hono<{ Variables: AuthVariables }>()
+  const allowedOrigins = dependencies.allowedOrigins ?? ['http://localhost:5173']
 
   application.use('*', requestId())
+  application.use('/api/*', cors({
+    origin: (origin) => allowedOrigins.includes(origin) ? origin : '',
+    allowHeaders: ['Authorization', 'Content-Type'],
+    allowMethods: ['GET', 'POST', 'OPTIONS'],
+    maxAge: 600,
+  }))
 
   application.get('/health/live', (context) => context.json({
     status: 'ok',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { app } from './app.js'
+import { app, createApp } from './app.js'
 
 describe('health', () => {
   it('confirma que la API está viva y entrega trazabilidad', async () => {
@@ -31,5 +31,14 @@ describe('health', () => {
       message: 'La ruta solicitada no existe.',
     })
     expect(body.error.requestId).toEqual(expect.any(String))
+  })
+
+  it('habilita CORS solo para el frontend configurado', async () => {
+    const application = createApp({ allowedOrigins: ['https://trendia.example'] })
+    const allowed = await application.request('/api/trends', { method: 'OPTIONS', headers: { Origin: 'https://trendia.example', 'Access-Control-Request-Method': 'GET' } })
+    const rejected = await application.request('/api/trends', { method: 'OPTIONS', headers: { Origin: 'https://malicious.example', 'Access-Control-Request-Method': 'GET' } })
+
+    expect(allowed.headers.get('access-control-allow-origin')).toBe('https://trendia.example')
+    expect(rejected.headers.get('access-control-allow-origin')).toBeNull()
   })
 })
