@@ -80,6 +80,13 @@ export function publishTrend(accessToken: string, trendId: string) {
   return authorizedPost<{ status: string }>(`/api/trends/${trendId}/publish`, accessToken)
 }
 
+export type EvaluationCriterion = { score: number, justification: string }
+export type EvaluationInput = Record<'internationalGrowth' | 'localInterest' | 'competitiveAttractiveness' | 'investmentAccessibility' | 'implementationEase' | 'viralPotential', EvaluationCriterion>
+
+export function evaluateTrend(accessToken: string, trendId: string, input: EvaluationInput) {
+  return authorizedPost<{ id: string, totalScore: number, level: string }>(`/api/trends/${trendId}/evaluations`, accessToken, input)
+}
+
 export function login(email: string, password: string): Promise<Session> {
   return request<Session>('/api/auth/login', undefined, {
     method: 'POST',
