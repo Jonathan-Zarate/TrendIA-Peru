@@ -64,6 +64,28 @@ export class PostgresUserStore {
     return created ?? null
   }
 
+  async provision(input: CreateStoredUserInput): Promise<StoredUser> {
+    const [provisioned] = await this.database
+      .insert(users)
+      .values(input)
+      .onConflictDoUpdate({
+        target: users.email,
+        set: {
+          name: input.name,
+          passwordHash: input.passwordHash,
+          role: input.role,
+          isActive: true,
+          failedLoginAttempts: 0,
+          lockedAt: null,
+          updatedAt: new Date(),
+        },
+      })
+      .returning(userSelection)
+
+    if (!provisioned) throw new Error('No se pudo provisionar el usuario.')
+    return provisioned
+  }
+
   async recordFailedLogin(id: string, maximumAttempts: number, occurredAt: Date): Promise<void> {
     await this.database
       .update(users)
