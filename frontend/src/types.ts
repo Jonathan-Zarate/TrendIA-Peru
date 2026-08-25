@@ -37,3 +37,17 @@ export interface TrendPage {
   data: TrendSummary[]
   meta: { page: number, limit: number, total: number, totalPages: number }
 }
+
+export type UserRole = 'ADMIN' | 'ANALYST' | 'ENTREPRENEUR'
+
+export interface SessionUser {
+  id: string
+  name: string
+  email: string
+  role: UserRole
+}
+
+export interface Session {
+  accessToken: string
+  user: SessionUser
+}

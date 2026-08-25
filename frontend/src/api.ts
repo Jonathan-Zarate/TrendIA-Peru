@@ -1,4 +1,4 @@
-import type { TrendDetail, TrendPage } from './types'
+import type { Session, SessionUser, TrendDetail, TrendPage } from './types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? ''
 
@@ -24,9 +24,25 @@ export function getTrend(slug: string, signal?: AbortSignal): Promise<TrendDetai
   return request<TrendDetail>(`/api/trends/${encodeURIComponent(slug)}`, signal)
 }
 
-async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
+export function login(email: string, password: string): Promise<Session> {
+  return request<Session>('/api/auth/login', undefined, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
+}
+
+export async function getCurrentUser(accessToken: string, signal?: AbortSignal): Promise<SessionUser> {
+  const response = await request<{ user: SessionUser }>('/api/auth/me', signal, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  return response.user
+}
+
+async function request<T>(path: string, signal?: AbortSignal, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { Accept: 'application/json' },
+    ...options,
+    headers: { Accept: 'application/json', ...options.headers },
     ...(signal ? { signal } : {}),
   })
   if (!response.ok) {
