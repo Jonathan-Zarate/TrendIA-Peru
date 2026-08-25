@@ -1,5 +1,5 @@
 import { TrendError } from './errors.js'
-import type { Page, SourceType, TrendDetail, TrendListItem, TrendSource, TrendStatus } from './model.js'
+import type { Page, SourceType, TrendCategory, TrendDetail, TrendListItem, TrendSource, TrendStatus } from './model.js'
 import type { TrendRepository } from './ports.js'
 
 export interface ListTrendInput {
@@ -35,6 +35,10 @@ export interface AddSourceInput {
 
 export class TrendService {
   constructor(private readonly trends: TrendRepository) {}
+
+  async listCategories(): Promise<TrendCategory[]> {
+    return await this.trends.listActiveCategories()
+  }
 
   async listPublic(input: ListTrendInput): Promise<Page<TrendListItem>> {
     return await this.trends.list({ ...cleanFilters(input), publicOnly: true })

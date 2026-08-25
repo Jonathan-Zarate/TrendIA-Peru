@@ -1,4 +1,4 @@
-import type { Page, SourceType, TrendDetail, TrendListItem, TrendSource, TrendStatus } from './model.js'
+import type { Page, SourceType, TrendCategory, TrendDetail, TrendListItem, TrendSource, TrendStatus } from './model.js'
 
 export interface TrendFilters {
   query?: string
@@ -34,6 +34,7 @@ export interface CreateSourceRecord {
 }
 
 export interface TrendRepository {
+  listActiveCategories(): Promise<TrendCategory[]>
   list(filters: TrendFilters): Promise<Page<TrendListItem>>
   findPublishedBySlug(slug: string): Promise<TrendDetail | null>
   findById(id: string): Promise<{ id: string, status: TrendStatus } | null>

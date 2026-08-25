@@ -57,6 +57,10 @@ export function createTrendRouter(trends: TrendModule, auth: AuthModule) {
     return context.json(await trends.service.listPublic(toListInput(input.data)))
   })
 
+  router.get('/categories', async (context) => context.json({
+    data: await trends.service.listCategories(),
+  }))
+
   router.get(
     '/manage',
     authenticate(auth),

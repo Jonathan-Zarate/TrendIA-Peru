@@ -4,6 +4,13 @@ export const SOURCE_TYPES = ['OPEN_DATA', 'SEARCH_TRENDS', 'ARTICLE', 'RESEARCH'
 export type TrendStatus = typeof TREND_STATUSES[number]
 export type SourceType = typeof SOURCE_TYPES[number]
 
+export interface TrendCategory {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+}
+
 export interface TrendListItem {
   id: string
   slug: string

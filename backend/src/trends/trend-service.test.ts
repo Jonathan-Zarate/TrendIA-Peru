@@ -4,6 +4,7 @@ import { TrendService } from './trend-service.js'
 
 function createRepository(overrides: Partial<TrendRepository> = {}): TrendRepository {
   return {
+    listActiveCategories: vi.fn(async () => []),
     list: vi.fn(async () => ({ data: [], meta: { page: 1, limit: 12, total: 0, totalPages: 0 } })),
     findPublishedBySlug: vi.fn(async () => null),
     findById: vi.fn(async () => ({ id: 'trend-1', status: 'DRAFT' as const })),

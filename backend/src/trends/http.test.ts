@@ -18,6 +18,7 @@ function dependencies(role: UserRole = 'ANALYST') {
     } as unknown as AuthService,
   }
   const service = {
+    listCategories: vi.fn(async () => [{ id: 'category-1', name: 'Tecnología', slug: 'tecnologia', description: null }]),
     listPublic: vi.fn(async () => ({ data: [], meta: { page: 1, limit: 12, total: 0, totalPages: 0 } })),
     listInternal: vi.fn(async () => ({ data: [], meta: { page: 1, limit: 12, total: 0, totalPages: 0 } })),
     getPublished: vi.fn(),
@@ -38,6 +39,14 @@ const validDraft = {
 }
 
 describe('HTTP trends', () => {
+  it('expone las categorías activas sin acoplar el frontend a IDs de Neon', async () => {
+    const deps = dependencies()
+    const response = await createApp(deps).request('/api/trends/categories')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ data: [{ id: 'category-1', name: 'Tecnología', slug: 'tecnologia', description: null }] })
+  })
+
   it('lista el catálogo público sin token y valida la paginación', async () => {
     const deps = dependencies()
     const app = createApp(deps)

@@ -48,6 +48,21 @@ export class PostgresTrendStore {
     })
   }
 
+  async listActiveCategories() {
+    const rows = await this.sql`
+      SELECT id, name, slug, description
+      FROM categories
+      WHERE is_active = true
+      ORDER BY name ASC, id ASC
+    `
+    return rows.map((row) => ({
+      id: String(row.id),
+      name: String(row.name),
+      slug: String(row.slug),
+      description: nullableString(row.description),
+    }))
+  }
+
   async list(filters: ListFilters) {
     const where = buildWhere(this.sql, filters)
     const offset = (filters.page - 1) * filters.limit
