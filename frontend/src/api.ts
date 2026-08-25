@@ -11,6 +11,10 @@ export interface TrendFilters {
   limit?: number
 }
 
+export interface ManagedTrendFilters extends TrendFilters {
+  status?: string
+}
+
 export async function listTrends(filters: TrendFilters, signal?: AbortSignal): Promise<TrendPage> {
   const params = new URLSearchParams()
   if (filters.query) params.set('q', filters.query)
@@ -22,6 +26,17 @@ export async function listTrends(filters: TrendFilters, signal?: AbortSignal): P
 
 export function getTrend(slug: string, signal?: AbortSignal): Promise<TrendDetail> {
   return request<TrendDetail>(`/api/trends/${encodeURIComponent(slug)}`, signal)
+}
+
+export function listManagedTrends(accessToken: string, filters: ManagedTrendFilters, signal?: AbortSignal): Promise<TrendPage> {
+  const params = new URLSearchParams()
+  if (filters.query) params.set('q', filters.query)
+  if (filters.status) params.set('status', filters.status)
+  params.set('page', String(filters.page ?? 1))
+  params.set('limit', String(filters.limit ?? 12))
+  return request<TrendPage>(`/api/trends/manage?${params.toString()}`, signal, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
 }
 
 export function login(email: string, password: string): Promise<Session> {

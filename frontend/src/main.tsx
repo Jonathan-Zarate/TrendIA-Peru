@@ -4,6 +4,7 @@ import { getCurrentUser } from './api'
 import { Catalog } from './components/Catalog'
 import { Header } from './components/Header'
 import { LoginDialog } from './components/LoginDialog'
+import { ManagementView } from './components/ManagementView'
 import { TrendDetailView } from './components/TrendDetailView'
 import { clearSession, loadSession, saveSession } from './session'
 import type { Session } from './types'
@@ -26,7 +27,11 @@ function App() {
   const detailSlug = path.match(/^\/tendencias\/([^/]+)$/)?.[1]
   const authenticated = (nextSession: Session) => { saveSession(nextSession); setSession(nextSession); setLoginOpen(false) }
   const logout = () => { clearSession(); setSession(null); navigate('/') }
-  return <div className="app"><Header onHome={() => navigate('/')} user={session?.user ?? null} onLogin={() => setLoginOpen(true)} onLogout={logout} />{detailSlug ? <TrendDetailView slug={decodeURIComponent(detailSlug)} onBack={() => navigate('/')} /> : <Catalog onOpen={(slug) => navigate(`/tendencias/${slug}`)} />}<footer><strong>TrendIA Perú</strong><span>Evidencia global. Decisiones locales.</span></footer><LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onAuthenticated={authenticated} /></div>
+  const canManage = session?.user.role === 'ADMIN' || session?.user.role === 'ANALYST'
+  const content = path === '/gestion' && canManage
+    ? <ManagementView accessToken={session.accessToken} role={session.user.role} />
+    : detailSlug ? <TrendDetailView slug={decodeURIComponent(detailSlug)} onBack={() => navigate('/')} /> : <Catalog onOpen={(slug) => navigate(`/tendencias/${slug}`)} />
+  return <div className="app"><Header onHome={() => navigate('/')} onManage={() => navigate('/gestion')} user={session?.user ?? null} onLogin={() => setLoginOpen(true)} onLogout={logout} activePath={path} />{content}<footer><strong>TrendIA Perú</strong><span>Evidencia global. Decisiones locales.</span></footer><LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onAuthenticated={authenticated} /></div>
 }
 
 createRoot(document.getElementById('root')!).render(

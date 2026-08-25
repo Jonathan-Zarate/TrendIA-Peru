@@ -10,6 +10,7 @@ export interface TrendSummary {
   summary: string
   originCountry: string
   originRegion: string | null
+  status: 'DRAFT' | 'IN_REVIEW' | 'PUBLISHED' | 'ARCHIVED'
   category: { id: string, name: string, slug: string }
   opportunity: OpportunitySummary | null
   publishedAt: string | null
