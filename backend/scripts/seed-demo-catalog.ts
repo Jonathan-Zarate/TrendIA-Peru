@@ -11,6 +11,7 @@ try {
     slug: 'tecnologia-negocios-consumo',
     description: 'Tendencias tecnológicas y experiencias de consumo adaptables al mercado peruano.',
   })
+  await trends.provisionScoringConfig(category.id)
   console.log(`Categoría provisionada: ${category.slug} (${category.id})`)
 }
 finally {

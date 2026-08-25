@@ -5,6 +5,8 @@ import { TrendService } from './trend-service.js'
 function createRepository(overrides: Partial<TrendRepository> = {}): TrendRepository {
   return {
     listActiveCategories: vi.fn(async () => []),
+    findActiveScoringConfig: vi.fn(async () => ({ id: 'config-1', weights: { internationalGrowth: 20, localInterest: 25, competitiveAttractiveness: 15, investmentAccessibility: 10, implementationEase: 15, viralPotential: 15 } })),
+    createEvaluation: vi.fn(async (input) => ({ id: 'evaluation-1', totalScore: input.totalScore, level: input.level })),
     list: vi.fn(async () => ({ data: [], meta: { page: 1, limit: 12, total: 0, totalPages: 0 } })),
     findPublishedBySlug: vi.fn(async () => null),
     findById: vi.fn(async () => ({ id: 'trend-1', status: 'DRAFT' as const })),
@@ -39,6 +41,17 @@ function createRepository(overrides: Partial<TrendRepository> = {}): TrendReposi
 }
 
 describe('TrendService', () => {
+  it('calcula la evaluación en servidor con la configuración activa', async () => {
+    const repository = createRepository()
+    const service = new TrendService(repository)
+    const justifications = { internationalGrowth: 'Evidencia internacional.', localInterest: 'Evidencia de interés local.', competitiveAttractiveness: 'Evidencia de competencia.', investmentAccessibility: 'Evidencia de inversión.', implementationEase: 'Evidencia de implementación.', viralPotential: 'Evidencia de viralidad.' }
+
+    const result = await service.evaluate({ trendId: 'trend-1', evaluatedBy: 'user-1', criteria: { internationalGrowth: 80, localInterest: 70, competitiveAttractiveness: 60, investmentAccessibility: 50, implementationEase: 70, viralPotential: 80 }, justifications })
+
+    expect(result).toMatchObject({ totalScore: 70, level: 'HIGH' })
+    expect(repository.createEvaluation).toHaveBeenCalledWith(expect.objectContaining({ scoringConfigId: 'config-1', totalScore: 70, level: 'HIGH', evaluatedBy: 'user-1' }))
+  })
+
   it('fuerza el alcance público al listar tendencias', async () => {
     const repository = createRepository()
     const service = new TrendService(repository)

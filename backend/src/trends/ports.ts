@@ -1,4 +1,5 @@
-import type { Page, SourceType, TrendCategory, TrendDetail, TrendListItem, TrendSource, TrendStatus } from './model.js'
+import type { OpportunityEvaluationSummary, Page, SourceType, TrendCategory, TrendDetail, TrendListItem, TrendSource, TrendStatus } from './model.js'
+import type { OpportunityCriteria, OpportunityWeights } from '../domain/opportunity.js'
 
 export interface TrendFilters {
   query?: string
@@ -33,8 +34,25 @@ export interface CreateSourceRecord {
   evidenceNote: string
 }
 
+export interface ActiveScoringConfig {
+  id: string
+  weights: OpportunityWeights
+}
+
+export interface CreateEvaluationRecord {
+  trendId: string
+  scoringConfigId: string
+  criteria: OpportunityCriteria
+  totalScore: number
+  level: 'LOW' | 'MEDIUM' | 'HIGH'
+  justifications: Record<keyof OpportunityCriteria, string>
+  evaluatedBy: string
+}
+
 export interface TrendRepository {
   listActiveCategories(): Promise<TrendCategory[]>
+  findActiveScoringConfig(trendId: string): Promise<ActiveScoringConfig | null>
+  createEvaluation(input: CreateEvaluationRecord): Promise<OpportunityEvaluationSummary | null>
   list(filters: TrendFilters): Promise<Page<TrendListItem>>
   findPublishedBySlug(slug: string): Promise<TrendDetail | null>
   findById(id: string): Promise<{ id: string, status: TrendStatus } | null>

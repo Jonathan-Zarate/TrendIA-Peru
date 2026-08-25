@@ -36,6 +36,16 @@ interface SourceInput {
   evidenceNote: string
 }
 
+interface EvaluationInput {
+  trendId: string
+  scoringConfigId: string
+  criteria: Record<'internationalGrowth' | 'localInterest' | 'competitiveAttractiveness' | 'investmentAccessibility' | 'implementationEase' | 'viralPotential', number>
+  totalScore: number
+  level: 'LOW' | 'MEDIUM' | 'HIGH'
+  justifications: Record<string, string>
+  evaluatedBy: string
+}
+
 export class PostgresTrendStore {
   private readonly sql: Sql
 
@@ -61,6 +71,51 @@ export class PostgresTrendStore {
       slug: String(row.slug),
       description: nullableString(row.description),
     }))
+  }
+
+  async findActiveScoringConfig(trendId: string) {
+    const rows = await this.sql`
+      SELECT sc.id, sc.international_growth_weight, sc.local_interest_weight,
+        sc.competitive_attractiveness_weight, sc.investment_accessibility_weight,
+        sc.implementation_ease_weight, sc.viral_potential_weight
+      FROM trends t
+      JOIN scoring_configs sc ON sc.category_id = t.category_id AND sc.is_active = true
+      WHERE t.id = ${trendId}
+      LIMIT 1
+    `
+    const row = rows[0]
+    if (!row) return null
+    return {
+      id: String(row.id),
+      weights: {
+        internationalGrowth: Number(row.international_growth_weight),
+        localInterest: Number(row.local_interest_weight),
+        competitiveAttractiveness: Number(row.competitive_attractiveness_weight),
+        investmentAccessibility: Number(row.investment_accessibility_weight),
+        implementationEase: Number(row.implementation_ease_weight),
+        viralPotential: Number(row.viral_potential_weight),
+      },
+    }
+  }
+
+  async createEvaluation(input: EvaluationInput) {
+    const rows = await this.sql`
+      INSERT INTO opportunity_evaluations (
+        trend_id, scoring_config_id, international_growth_score, local_interest_score,
+        competitive_attractiveness_score, investment_accessibility_score,
+        implementation_ease_score, viral_potential_score, total_score, level,
+        justifications, evaluated_by
+      ) VALUES (
+        ${input.trendId}, ${input.scoringConfigId}, ${input.criteria.internationalGrowth},
+        ${input.criteria.localInterest}, ${input.criteria.competitiveAttractiveness},
+        ${input.criteria.investmentAccessibility}, ${input.criteria.implementationEase},
+        ${input.criteria.viralPotential}, ${input.totalScore}, ${input.level},
+        ${this.sql.json(input.justifications)}, ${input.evaluatedBy}
+      )
+      RETURNING id, total_score, level
+    `
+    const row = rows[0]
+    return row ? { id: String(row.id), totalScore: Number(row.total_score), level: row.level as 'LOW' | 'MEDIUM' | 'HIGH' } : null
   }
 
   async list(filters: ListFilters) {
@@ -170,6 +225,21 @@ export class PostgresTrendStore {
     const category = rows[0]
     if (!category) throw new Error('No se pudo provisionar la categoría.')
     return { id: String(category.id), name: String(category.name), slug: String(category.slug) }
+  }
+
+  async provisionScoringConfig(categoryId: string) {
+    const rows = await this.sql`
+      INSERT INTO scoring_configs (
+        category_id, name, version, international_growth_weight, local_interest_weight,
+        competitive_attractiveness_weight, investment_accessibility_weight,
+        implementation_ease_weight, viral_potential_weight, is_active
+      ) VALUES (${categoryId}, 'Índice base TrendIA', 1, 20, 25, 15, 10, 15, 15, true)
+      ON CONFLICT (category_id, version) DO UPDATE
+      SET name = excluded.name, is_active = true
+      RETURNING id
+    `
+    if (!rows[0]) throw new Error('No se pudo provisionar la configuración de puntaje.')
+    return { id: String(rows[0].id) }
   }
 
   async createDraft(input: DraftInput) {

@@ -24,6 +24,7 @@ function dependencies(role: UserRole = 'ANALYST') {
     getPublished: vi.fn(),
     createDraft: vi.fn(async (input) => ({ id: 'trend-1', ...input, status: 'DRAFT' })),
     addSource: vi.fn(),
+    evaluate: vi.fn(async () => ({ id: 'evaluation-1', totalScore: 70, level: 'HIGH' })),
     submitForReview: vi.fn(),
     publish: vi.fn(),
   } as unknown as TrendService & Record<string, ReturnType<typeof vi.fn>>
@@ -109,5 +110,18 @@ describe('HTTP trends', () => {
     )
     expect(allowed.status).toBe(200)
     expect(admin.trends.service.publish).toHaveBeenCalledWith('5f6e2b50-b7c0-4b85-b107-9eeac74cbf37')
+  })
+
+  it('permite evaluar al ANALYST y toma su identidad del servidor', async () => {
+    const deps = dependencies('ANALYST')
+    const criterion = { score: 70, justification: 'La evidencia respalda este criterio.' }
+    const response = await createApp(deps).request('/api/trends/5f6e2b50-b7c0-4b85-b107-9eeac74cbf37/evaluations', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer valid', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ internationalGrowth: criterion, localInterest: criterion, competitiveAttractiveness: criterion, investmentAccessibility: criterion, implementationEase: criterion, viralPotential: criterion }),
+    })
+
+    expect(response.status).toBe(201)
+    expect(deps.trends.service.evaluate).toHaveBeenCalledWith(expect.objectContaining({ trendId: '5f6e2b50-b7c0-4b85-b107-9eeac74cbf37', evaluatedBy: 'user-1' }))
   })
 })

@@ -1,5 +1,6 @@
 import { TrendError } from './errors.js'
-import type { Page, SourceType, TrendCategory, TrendDetail, TrendListItem, TrendSource, TrendStatus } from './model.js'
+import { calculateOpportunity, opportunityCriteriaSchema, type OpportunityCriteria } from '../domain/opportunity.js'
+import type { OpportunityEvaluationSummary, Page, SourceType, TrendCategory, TrendDetail, TrendListItem, TrendSource, TrendStatus } from './model.js'
 import type { TrendRepository } from './ports.js'
 
 export interface ListTrendInput {
@@ -31,6 +32,13 @@ export interface AddSourceInput {
   publishedAt?: string
   consultedAt: string
   evidenceNote: string
+}
+
+export interface EvaluateTrendInput {
+  trendId: string
+  criteria: OpportunityCriteria
+  justifications: Record<keyof OpportunityCriteria, string>
+  evaluatedBy: string
 }
 
 export class TrendService {
@@ -89,6 +97,28 @@ export class TrendService {
     })
     if (!source) throw new TrendError('SOURCE_CONFLICT', 'La fuente ya está registrada en esta tendencia.', 409)
     return source
+  }
+
+  async evaluate(input: EvaluateTrendInput): Promise<OpportunityEvaluationSummary> {
+    const trend = await this.trends.findById(input.trendId)
+    if (!trend) throw new TrendError('TREND_NOT_FOUND', 'La tendencia no existe.', 404)
+    if (trend.status === 'ARCHIVED') throw new TrendError('TREND_NOT_EDITABLE', 'Una tendencia archivada no puede evaluarse.', 409)
+
+    const config = await this.trends.findActiveScoringConfig(input.trendId)
+    if (!config) throw new TrendError('SCORING_CONFIG_NOT_FOUND', 'No existe una configuración de puntaje activa para esta categoría.', 409)
+    const criteria = opportunityCriteriaSchema.parse(input.criteria)
+    const result = calculateOpportunity(criteria, config.weights)
+    const evaluation = await this.trends.createEvaluation({
+      trendId: input.trendId,
+      scoringConfigId: config.id,
+      criteria,
+      totalScore: result.score,
+      level: result.level,
+      justifications: input.justifications,
+      evaluatedBy: input.evaluatedBy,
+    })
+    if (!evaluation) throw new TrendError('EVALUATION_NOT_SAVED', 'No se pudo registrar la evaluación.', 409)
+    return evaluation
   }
 
   async submitForReview(id: string): Promise<void> {

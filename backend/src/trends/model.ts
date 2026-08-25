@@ -11,6 +11,12 @@ export interface TrendCategory {
   description: string | null
 }
 
+export interface OpportunityEvaluationSummary {
+  id: string
+  totalScore: number
+  level: 'LOW' | 'MEDIUM' | 'HIGH'
+}
+
 export interface TrendListItem {
   id: string
   slug: string

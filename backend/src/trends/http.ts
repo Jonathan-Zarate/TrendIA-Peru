@@ -44,6 +44,16 @@ const sourceSchema = z.object({
   evidenceNote: z.string().trim().min(10).max(2_000),
 }).strict()
 
+const criterionSchema = z.object({ score: z.number().int().min(0).max(100), justification: z.string().trim().min(10).max(1_000) }).strict()
+const evaluationSchema = z.object({
+  internationalGrowth: criterionSchema,
+  localInterest: criterionSchema,
+  competitiveAttractiveness: criterionSchema,
+  investmentAccessibility: criterionSchema,
+  implementationEase: criterionSchema,
+  viralPotential: criterionSchema,
+}).strict()
+
 export interface TrendModule {
   service: TrendService
 }
@@ -111,6 +121,26 @@ export function createTrendRouter(trends: TrendModule, auth: AuthModule) {
         evidenceNote: input.data.evidenceNote,
         ...(input.data.publisher ? { publisher: input.data.publisher } : {}),
         ...(input.data.publishedAt ? { publishedAt: input.data.publishedAt } : {}),
+      }), 201)
+    },
+  )
+
+  router.post(
+    '/:id/evaluations',
+    authenticate(auth),
+    requirePermission('trend:evaluate'),
+    async (context) => {
+      const id = z.uuid().safeParse(context.req.param('id'))
+      if (!id.success) return validationResponse(context, id.error)
+      const input = await parseBody(context, evaluationSchema)
+      if (!input.success) return input.response
+      const user = context.get('currentUser')
+      const keys = Object.keys(input.data) as Array<keyof typeof input.data>
+      return context.json(await trends.service.evaluate({
+        trendId: id.data,
+        criteria: Object.fromEntries(keys.map((key) => [key, input.data[key].score])) as Record<keyof typeof input.data, number>,
+        justifications: Object.fromEntries(keys.map((key) => [key, input.data[key].justification])) as Record<keyof typeof input.data, string>,
+        evaluatedBy: user.id,
       }), 201)
     },
   )
