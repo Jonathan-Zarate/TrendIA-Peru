@@ -17,6 +17,7 @@ Actualmente están operativos sobre PostgreSQL/Neon:
 - Transición controlada de borrador a revisión y publicación exclusiva por administración.
 - Índice calculado en backend y reconciliado por PostgreSQL con pesos versionados.
 - Restricciones de integridad y smoke tests reales contra Neon.
+- Tres tendencias publicadas con fuentes internacionales y peruanas almacenadas en Neon.
 
 ## Flujo principal
 
@@ -48,3 +49,4 @@ La aplicación Android, el scraping de redes sociales, las alertas automáticas 
 - `docs/seguridad-y-permisos.md`: matriz RBAC y reglas de autenticación.
 - `docs/proceso/008-catalogo-y-flujo-editorial.md`: evidencia del catálogo en Neon.
 - `docs/proceso/009-web-editorial-e-indice.md`: decisiones y evidencia de la web y el índice.
+- `docs/proceso/010-tendencias-iniciales.md`: fuentes, criterio y ejecución idempotente del contenido inicial.
