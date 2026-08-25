@@ -2,6 +2,7 @@
   "name": "@trendia/shared",
   "private": true,
   "version": "0.1.0",
+  "description": "Contratos de validacion compartidos por los clientes de TrendIA.",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -12,4 +13,3 @@
     "zod": "4.4.3"
   }
 }
-

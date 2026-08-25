@@ -1,0 +1,1233 @@
+{
+  "id": "0fb0beb3-bee5-4ccc-9162-6d4e4a67cbc6",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.ai_analyses": {
+      "name": "ai_analyses",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "trend_id": {
+          "name": "trend_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evaluation_id": {
+          "name": "evaluation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requested_by": {
+          "name": "requested_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model": {
+          "name": "model",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prompt_version": {
+          "name": "prompt_version",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "raw_response": {
+          "name": "raw_response",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "analysis_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'GENERATED'"
+        },
+        "reviewed_by": {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviewed_at": {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "review_note": {
+          "name": "review_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_ai_analyses_trend_created": {
+          "name": "idx_ai_analyses_trend_created",
+          "columns": [
+            {
+              "expression": "trend_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ai_analyses_trend_id_trends_id_fk": {
+          "name": "ai_analyses_trend_id_trends_id_fk",
+          "tableFrom": "ai_analyses",
+          "tableTo": "trends",
+          "columnsFrom": [
+            "trend_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ai_analyses_evaluation_id_opportunity_evaluations_id_fk": {
+          "name": "ai_analyses_evaluation_id_opportunity_evaluations_id_fk",
+          "tableFrom": "ai_analyses",
+          "tableTo": "opportunity_evaluations",
+          "columnsFrom": [
+            "evaluation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ai_analyses_requested_by_users_id_fk": {
+          "name": "ai_analyses_requested_by_users_id_fk",
+          "tableFrom": "ai_analyses",
+          "tableTo": "users",
+          "columnsFrom": [
+            "requested_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ai_analyses_reviewed_by_users_id_fk": {
+          "name": "ai_analyses_reviewed_by_users_id_fk",
+          "tableFrom": "ai_analyses",
+          "tableTo": "users",
+          "columnsFrom": [
+            "reviewed_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ck_ai_analyses_human_review": {
+          "name": "ck_ai_analyses_human_review",
+          "value": "\"ai_analyses\".\"status\" = 'GENERATED' or (\"ai_analyses\".\"reviewed_by\" is not null and \"ai_analyses\".\"reviewed_at\" is not null)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.audit_logs": {
+      "name": "audit_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "actor_user_id": {
+          "name": "actor_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_audit_logs_entity": {
+          "name": "idx_audit_logs_entity",
+          "columns": [
+            {
+              "expression": "entity_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entity_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_audit_logs_actor": {
+          "name": "idx_audit_logs_actor",
+          "columns": [
+            {
+              "expression": "actor_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "audit_logs_actor_user_id_users_id_fk": {
+          "name": "audit_logs_actor_user_id_users_id_fk",
+          "tableFrom": "audit_logs",
+          "tableTo": "users",
+          "columnsFrom": [
+            "actor_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.categories": {
+      "name": "categories",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "categories_slug_unique": {
+          "name": "categories_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.opportunity_evaluations": {
+      "name": "opportunity_evaluations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "trend_id": {
+          "name": "trend_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scoring_config_id": {
+          "name": "scoring_config_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "international_growth_score": {
+          "name": "international_growth_score",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "local_interest_score": {
+          "name": "local_interest_score",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "competitive_attractiveness_score": {
+          "name": "competitive_attractiveness_score",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "investment_accessibility_score": {
+          "name": "investment_accessibility_score",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "implementation_ease_score": {
+          "name": "implementation_ease_score",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "viral_potential_score": {
+          "name": "viral_potential_score",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_score": {
+          "name": "total_score",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "opportunity_level",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "justifications": {
+          "name": "justifications",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evaluated_by": {
+          "name": "evaluated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_opportunity_evaluations_trend_created": {
+          "name": "idx_opportunity_evaluations_trend_created",
+          "columns": [
+            {
+              "expression": "trend_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "opportunity_evaluations_trend_id_trends_id_fk": {
+          "name": "opportunity_evaluations_trend_id_trends_id_fk",
+          "tableFrom": "opportunity_evaluations",
+          "tableTo": "trends",
+          "columnsFrom": [
+            "trend_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "opportunity_evaluations_scoring_config_id_scoring_configs_id_fk": {
+          "name": "opportunity_evaluations_scoring_config_id_scoring_configs_id_fk",
+          "tableFrom": "opportunity_evaluations",
+          "tableTo": "scoring_configs",
+          "columnsFrom": [
+            "scoring_config_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "opportunity_evaluations_evaluated_by_users_id_fk": {
+          "name": "opportunity_evaluations_evaluated_by_users_id_fk",
+          "tableFrom": "opportunity_evaluations",
+          "tableTo": "users",
+          "columnsFrom": [
+            "evaluated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ck_opportunity_evaluations_international_growth": {
+          "name": "ck_opportunity_evaluations_international_growth",
+          "value": "\"opportunity_evaluations\".\"international_growth_score\" between 0 and 100"
+        },
+        "ck_opportunity_evaluations_local_interest": {
+          "name": "ck_opportunity_evaluations_local_interest",
+          "value": "\"opportunity_evaluations\".\"local_interest_score\" between 0 and 100"
+        },
+        "ck_opportunity_evaluations_competitive": {
+          "name": "ck_opportunity_evaluations_competitive",
+          "value": "\"opportunity_evaluations\".\"competitive_attractiveness_score\" between 0 and 100"
+        },
+        "ck_opportunity_evaluations_investment": {
+          "name": "ck_opportunity_evaluations_investment",
+          "value": "\"opportunity_evaluations\".\"investment_accessibility_score\" between 0 and 100"
+        },
+        "ck_opportunity_evaluations_implementation": {
+          "name": "ck_opportunity_evaluations_implementation",
+          "value": "\"opportunity_evaluations\".\"implementation_ease_score\" between 0 and 100"
+        },
+        "ck_opportunity_evaluations_viral": {
+          "name": "ck_opportunity_evaluations_viral",
+          "value": "\"opportunity_evaluations\".\"viral_potential_score\" between 0 and 100"
+        },
+        "ck_opportunity_evaluations_total": {
+          "name": "ck_opportunity_evaluations_total",
+          "value": "\"opportunity_evaluations\".\"total_score\" between 0 and 100"
+        },
+        "ck_opportunity_evaluations_level": {
+          "name": "ck_opportunity_evaluations_level",
+          "value": "(\"opportunity_evaluations\".\"total_score\" < 40 and \"opportunity_evaluations\".\"level\" = 'LOW') or (\"opportunity_evaluations\".\"total_score\" >= 40 and \"opportunity_evaluations\".\"total_score\" < 70 and \"opportunity_evaluations\".\"level\" = 'MEDIUM') or (\"opportunity_evaluations\".\"total_score\" >= 70 and \"opportunity_evaluations\".\"level\" = 'HIGH')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.scoring_configs": {
+      "name": "scoring_configs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "international_growth_weight": {
+          "name": "international_growth_weight",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "local_interest_weight": {
+          "name": "local_interest_weight",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "competitive_attractiveness_weight": {
+          "name": "competitive_attractiveness_weight",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "investment_accessibility_weight": {
+          "name": "investment_accessibility_weight",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "implementation_ease_weight": {
+          "name": "implementation_ease_weight",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "viral_potential_weight": {
+          "name": "viral_potential_weight",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "uq_scoring_configs_category_version": {
+          "name": "uq_scoring_configs_category_version",
+          "columns": [
+            {
+              "expression": "category_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "version",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "uq_scoring_configs_one_active_per_category": {
+          "name": "uq_scoring_configs_one_active_per_category",
+          "columns": [
+            {
+              "expression": "category_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"scoring_configs\".\"is_active\" = true",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "scoring_configs_category_id_categories_id_fk": {
+          "name": "scoring_configs_category_id_categories_id_fk",
+          "tableFrom": "scoring_configs",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ck_scoring_configs_positive_version": {
+          "name": "ck_scoring_configs_positive_version",
+          "value": "\"scoring_configs\".\"version\" > 0"
+        },
+        "ck_scoring_configs_international_growth_weight": {
+          "name": "ck_scoring_configs_international_growth_weight",
+          "value": "\"scoring_configs\".\"international_growth_weight\" between 0 and 100"
+        },
+        "ck_scoring_configs_local_interest_weight": {
+          "name": "ck_scoring_configs_local_interest_weight",
+          "value": "\"scoring_configs\".\"local_interest_weight\" between 0 and 100"
+        },
+        "ck_scoring_configs_competitive_weight": {
+          "name": "ck_scoring_configs_competitive_weight",
+          "value": "\"scoring_configs\".\"competitive_attractiveness_weight\" between 0 and 100"
+        },
+        "ck_scoring_configs_investment_weight": {
+          "name": "ck_scoring_configs_investment_weight",
+          "value": "\"scoring_configs\".\"investment_accessibility_weight\" between 0 and 100"
+        },
+        "ck_scoring_configs_implementation_weight": {
+          "name": "ck_scoring_configs_implementation_weight",
+          "value": "\"scoring_configs\".\"implementation_ease_weight\" between 0 and 100"
+        },
+        "ck_scoring_configs_viral_weight": {
+          "name": "ck_scoring_configs_viral_weight",
+          "value": "\"scoring_configs\".\"viral_potential_weight\" between 0 and 100"
+        },
+        "ck_scoring_configs_weights_sum_100": {
+          "name": "ck_scoring_configs_weights_sum_100",
+          "value": "\"scoring_configs\".\"international_growth_weight\" + \"scoring_configs\".\"local_interest_weight\" + \"scoring_configs\".\"competitive_attractiveness_weight\" + \"scoring_configs\".\"investment_accessibility_weight\" + \"scoring_configs\".\"implementation_ease_weight\" + \"scoring_configs\".\"viral_potential_weight\" = 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.trend_sources": {
+      "name": "trend_sources",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "trend_id": {
+          "name": "trend_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "source_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(300)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publisher": {
+          "name": "publisher",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "consulted_at": {
+          "name": "consulted_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evidence_note": {
+          "name": "evidence_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "uq_trend_sources_trend_url": {
+          "name": "uq_trend_sources_trend_url",
+          "columns": [
+            {
+              "expression": "trend_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "url",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_trend_sources_trend": {
+          "name": "idx_trend_sources_trend",
+          "columns": [
+            {
+              "expression": "trend_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "is_active",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "trend_sources_trend_id_trends_id_fk": {
+          "name": "trend_sources_trend_id_trends_id_fk",
+          "tableFrom": "trend_sources",
+          "tableTo": "trends",
+          "columnsFrom": [
+            "trend_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.trends": {
+      "name": "trends",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(220)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(240)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "summary": {
+          "name": "summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origin_country": {
+          "name": "origin_country",
+          "type": "char(2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origin_region": {
+          "name": "origin_region",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "trend_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'DRAFT'"
+        },
+        "observation_started_at": {
+          "name": "observation_started_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "observation_ended_at": {
+          "name": "observation_ended_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_trends_catalog": {
+          "name": "idx_trends_catalog",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "category_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "trends_category_id_categories_id_fk": {
+          "name": "trends_category_id_categories_id_fk",
+          "tableFrom": "trends",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "trends_created_by_users_id_fk": {
+          "name": "trends_created_by_users_id_fk",
+          "tableFrom": "trends",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "trends_slug_unique": {
+          "name": "trends_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "ck_trends_origin_country_uppercase": {
+          "name": "ck_trends_origin_country_uppercase",
+          "value": "\"trends\".\"origin_country\" = upper(\"trends\".\"origin_country\")"
+        },
+        "ck_trends_observation_window": {
+          "name": "ck_trends_observation_window",
+          "value": "\"trends\".\"observation_started_at\" is null or \"trends\".\"observation_ended_at\" is null or \"trends\".\"observation_ended_at\" >= \"trends\".\"observation_started_at\""
+        },
+        "ck_trends_publication_timestamp": {
+          "name": "ck_trends_publication_timestamp",
+          "value": "(\"trends\".\"status\" = 'PUBLISHED' and \"trends\".\"published_at\" is not null) or (\"trends\".\"status\" <> 'PUBLISHED')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "user_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "failed_login_attempts": {
+          "name": "failed_login_attempts",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "locked_at": {
+          "name": "locked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "ck_users_failed_attempts_nonnegative": {
+          "name": "ck_users_failed_attempts_nonnegative",
+          "value": "\"users\".\"failed_login_attempts\" >= 0"
+        },
+        "ck_users_email_normalized": {
+          "name": "ck_users_email_normalized",
+          "value": "\"users\".\"email\" = lower(\"users\".\"email\")"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.analysis_status": {
+      "name": "analysis_status",
+      "schema": "public",
+      "values": [
+        "GENERATED",
+        "REVIEWED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "public.opportunity_level": {
+      "name": "opportunity_level",
+      "schema": "public",
+      "values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+      ]
+    },
+    "public.source_type": {
+      "name": "source_type",
+      "schema": "public",
+      "values": [
+        "OPEN_DATA",
+        "SEARCH_TRENDS",
+        "ARTICLE",
+        "RESEARCH",
+        "SURVEY",
+        "OTHER"
+      ]
+    },
+    "public.trend_status": {
+      "name": "trend_status",
+      "schema": "public",
+      "values": [
+        "DRAFT",
+        "IN_REVIEW",
+        "PUBLISHED",
+        "ARCHIVED"
+      ]
+    },
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "ADMIN",
+        "ANALYST",
+        "ENTREPRENEUR"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

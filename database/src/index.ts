@@ -1,2 +1,1 @@
-export const databasePackage = '@trendia/database'
-
+export * from './schema/index.js'

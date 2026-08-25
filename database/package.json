@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "db:generate": "drizzle-kit generate",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit"
   },
@@ -18,4 +19,3 @@
     "tsx": "4.23.12"
   }
 }
-
