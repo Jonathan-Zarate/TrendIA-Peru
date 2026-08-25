@@ -50,3 +50,4 @@ La aplicación Android, el scraping de redes sociales, las alertas automáticas 
 - `docs/proceso/008-catalogo-y-flujo-editorial.md`: evidencia del catálogo en Neon.
 - `docs/proceso/009-web-editorial-e-indice.md`: decisiones y evidencia de la web y el índice.
 - `docs/proceso/010-tendencias-iniciales.md`: fuentes, criterio y ejecución idempotente del contenido inicial.
+- `docs/proceso/011-prueba-integral-local.md`: recorrido visual, responsive y matriz probada por rol.
