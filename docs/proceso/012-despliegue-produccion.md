@@ -31,6 +31,7 @@ Cada corrección se registró en un commit independiente antes del siguiente int
 - Recarga directa de `/tendencias/micromercados-autonomos-con-pago-digital`: `200 OK`.
 - Navegación visual desde el radar al detalle: título, puntaje, fuentes y periodo observado visibles.
 - Consola del navegador durante el recorrido: sin errores.
+- Login y `/api/auth/me` comprobados en producción para `ADMIN` (11 permisos), `ANALYST` (7) y `ENTREPRENEUR` (3), sin imprimir las contraseñas.
 
 ## Resultado
 
