@@ -18,6 +18,13 @@ Actualmente están operativos sobre PostgreSQL/Neon:
 - Índice calculado en backend y reconciliado por PostgreSQL con pesos versionados.
 - Restricciones de integridad y smoke tests reales contra Neon.
 - Tres tendencias publicadas con fuentes internacionales y peruanas almacenadas en Neon.
+- API y frontend desplegados en Vercel y verificados contra la base de producción.
+
+## Demo pública
+
+- Web: https://trendia-peru.vercel.app
+- API (salud): https://trendia-peru-api.vercel.app/health/live
+- Repositorio: https://github.com/Jonathan-Zarate/TrendIA-Peru
 
 ## Flujo principal
 
@@ -51,3 +58,4 @@ La aplicación Android, el scraping de redes sociales, las alertas automáticas 
 - `docs/proceso/009-web-editorial-e-indice.md`: decisiones y evidencia de la web y el índice.
 - `docs/proceso/010-tendencias-iniciales.md`: fuentes, criterio y ejecución idempotente del contenido inicial.
 - `docs/proceso/011-prueba-integral-local.md`: recorrido visual, responsive y matriz probada por rol.
+- `docs/proceso/012-despliegue-produccion.md`: incidencias, correcciones y evidencia del despliegue real.
