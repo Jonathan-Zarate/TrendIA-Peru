@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter @trendia/database build && pnpm --filter @trendia/backend build",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api" }
+  ]
+}
